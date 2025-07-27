@@ -16,24 +16,25 @@ type FiletredNewsPageProps = {
 export default function FiletredNewsPage({ params }: FiletredNewsPageProps) {
   //filter holds an array, of all matched segments
   const filter = params.filter;
+
   const selectedYear = filter?.[0];
   const selectedMonth = filter?.[1];
 
   let news;
-
   let links = getAvailableNewsYears();
-  let newsContent = <p>No news found for th selected period.</p>;
 
   if (selectedYear && !selectedMonth) {
     news = getNewsForYear(selectedYear);
     links = getAvailableNewsMonths(selectedYear);
   }
+
   if (selectedYear && selectedMonth) {
     news = getNewsForYearAndMonth(selectedYear, selectedMonth);
     links = [];
   }
+  let newsContent = <p>No news found for the selected period.</p>;
 
-  if (news) {
+  if (news && news.length > 0) {
     newsContent = <NewsList news={news} />;
   }
 
@@ -52,7 +53,7 @@ export default function FiletredNewsPage({ params }: FiletredNewsPageProps) {
           <ul>
             {links.map((link) => {
               const href = selectedYear
-                ? `/archive/${selectedMonth}/${link}`
+                ? `/archive/${selectedYear}/${link}`
                 : `/archive/${link}`;
               return (
                 <li key={link}>
