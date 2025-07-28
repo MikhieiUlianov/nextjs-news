@@ -13,7 +13,9 @@ type FiletredNewsPageProps = {
   };
 };
 
-export default function FiletredNewsPage({ params }: FiletredNewsPageProps) {
+export default async function FiletredNewsPage({
+  params,
+}: FiletredNewsPageProps) {
   //filter holds an array, of all matched segments
   const filter = params.filter;
 
@@ -21,15 +23,15 @@ export default function FiletredNewsPage({ params }: FiletredNewsPageProps) {
   const selectedMonth = filter?.[1];
 
   let news;
-  let links = getAvailableNewsYears();
+  let links = await getAvailableNewsYears();
 
   if (selectedYear && !selectedMonth) {
-    news = getNewsForYear(selectedYear);
+    news = await getNewsForYear(selectedYear);
     links = getAvailableNewsMonths(selectedYear);
   }
 
   if (selectedYear && selectedMonth) {
-    news = getNewsForYearAndMonth(selectedYear, selectedMonth);
+    news = await getNewsForYearAndMonth(selectedYear, selectedMonth);
     links = [];
   }
   let newsContent = <p>No news found for the selected period.</p>;
@@ -38,10 +40,12 @@ export default function FiletredNewsPage({ params }: FiletredNewsPageProps) {
     newsContent = <NewsList news={news} />;
   }
 
+  const availibleYears = await getAvailableNewsYears();
+
   if (
-    (selectedYear && !getAvailableNewsYears().includes(+selectedYear)) ||
+    (selectedYear && !availibleYears.includes(selectedYear)) ||
     (selectedMonth &&
-      !getAvailableNewsMonths(selectedYear).includes(+selectedMonth))
+      !getAvailableNewsMonths(selectedYear).includes(selectedMonth))
   ) {
     throw new Error("Invalid filter.");
   }
@@ -51,7 +55,7 @@ export default function FiletredNewsPage({ params }: FiletredNewsPageProps) {
       <header id="archive-header">
         <nav>
           <ul>
-            {links.map((link) => {
+            {links.map((link: string) => {
               const href = selectedYear
                 ? `/archive/${selectedYear}/${link}`
                 : `/archive/${link}`;
